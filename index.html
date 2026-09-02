@@ -19,6 +19,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:20px;ma
 .title{display:flex;align-items:center;gap:12px}
 .logo{font-size:32px}.title h1{font-size:23px;margin:0}.title p{margin:3px 0 0;color:var(--muted);font-size:13px}
 .status{background:#eaf8ef;color:var(--ok);padding:8px 12px;border-radius:20px;font-size:13px;font-weight:700}
+.status.offline{background:#fdecec;color:#dc2626}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
 .metric .label{color:var(--muted);font-size:13px}.metric .value{font-size:30px;font-weight:800;margin:7px 0 2px}.metric .sub{font-size:12px;color:var(--muted)}
@@ -40,7 +41,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
     <div class="logo">🌧️</div>
     <div><h1>PLUVIÓMETRO ESTACION ALANGASI</h1><p>Estación experimental · Quito, San Gabriel 170804 Ecuador</p></div>
   </div>
-  <div class="status" id="status">● ONLINE</div>
+  <div class="status" id="status">● Cargando…</div>
 </header>
 
 <div class="grid">
@@ -157,8 +158,22 @@ async function cargarDatos(){
     document.querySelectorAll(".summary .card")[3].querySelector(".value").textContent = d.month.toFixed(2)+" mm";
 
     document.getElementById("updated").textContent = segundosDesde(d.updatedAt);
-    document.getElementById("status").textContent = "● ONLINE";
-    document.getElementById("stationStatus").textContent = "Funcionando";
+
+    const statusEl = document.getElementById("status");
+    // Usamos el heartbeat (señal periódica "sigo vivo"), no lastTip,
+    // porque si no llueve por horas eso NO significa que la estación esté caída.
+    const minutosDesdeHeartbeat = d.lastHeartbeat ? (Date.now() - new Date(d.lastHeartbeat).getTime()) / 60000 : Infinity;
+    const estacionActiva = minutosDesdeHeartbeat < 20; // heartbeat cada 10 min; 20 min de margen
+
+    if(estacionActiva){
+      statusEl.textContent = "● ONLINE";
+      statusEl.classList.remove("offline");
+      document.getElementById("stationStatus").textContent = "Funcionando";
+    } else {
+      statusEl.textContent = "● SIN CONEXIÓN";
+      statusEl.classList.add("offline");
+      document.getElementById("stationStatus").textContent = "Sin eventos recientes";
+    }
 
     if(!chartRain24){
       crearGraficos(d.labels24, d.rainData, d.intensityLabels, d.intensityData);
@@ -167,7 +182,9 @@ async function cargarDatos(){
     }
   } catch(err){
     console.error("Error cargando dashboard:", err);
-    document.getElementById("status").textContent = "● SIN CONEXIÓN";
+    const statusEl = document.getElementById("status");
+    statusEl.textContent = "● SIN CONEXIÓN";
+    statusEl.classList.add("offline");
     document.getElementById("stationStatus").textContent = "Sin datos del servidor";
   }
 }
