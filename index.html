@@ -175,7 +175,7 @@ async function cargarDatos(){
     } else {
       statusEl.textContent = "● SIN CONEXIÓN";
       statusEl.classList.add("offline");
-      document.getElementById("stationStatus").textContent = "Sin eventos recientes";
+      document.getElementById("stationStatus").textContent = "Sin heartbeat reciente";
       document.getElementById("wifiStatus").textContent = "Sin datos";
       document.getElementById("wifiStatus").classList.add("offline");
     }
