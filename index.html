@@ -20,6 +20,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:20px;ma
 .logo{font-size:32px}.title h1{font-size:23px;margin:0}.title p{margin:3px 0 0;color:var(--muted);font-size:13px}
 .status{background:#eaf8ef;color:var(--ok);padding:8px 12px;border-radius:20px;font-size:13px;font-weight:700}
 .status.offline{background:#fdecec;color:#dc2626}
+#wifiStatus.offline{color:#dc2626}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
 .metric .label{color:var(--muted);font-size:13px}.metric .value{font-size:30px;font-weight:800;margin:7px 0 2px}.metric .sub{font-size:12px;color:var(--muted)}
@@ -81,8 +82,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
   </div>
   <div class="card">
     <h2>Datos del dispositivo</h2>
-    <div class="info-row"><span>Controlador</span><strong>ESP32</strong></div>
-    <div class="info-row"><span>Wi-Fi</span><strong>Conectado</strong></div>
+    <div class="info-row"><span>Controlador</span><strong>Wemos D1 mini (ESP8266)</strong></div>
+    <div class="info-row"><span>Wi-Fi</span><strong id="wifiStatus">Conectado</strong></div>
     <div class="info-row"><span>Servidor</span><strong>Cloudflare Worker + D1</strong></div>
   </div>
 </div>
@@ -169,10 +170,14 @@ async function cargarDatos(){
       statusEl.textContent = "● ONLINE";
       statusEl.classList.remove("offline");
       document.getElementById("stationStatus").textContent = "Funcionando";
+      document.getElementById("wifiStatus").textContent = "Conectado";
+      document.getElementById("wifiStatus").classList.remove("offline");
     } else {
       statusEl.textContent = "● SIN CONEXIÓN";
       statusEl.classList.add("offline");
       document.getElementById("stationStatus").textContent = "Sin eventos recientes";
+      document.getElementById("wifiStatus").textContent = "Sin datos";
+      document.getElementById("wifiStatus").classList.add("offline");
     }
 
     if(!chartRain24){
@@ -186,6 +191,8 @@ async function cargarDatos(){
     statusEl.textContent = "● SIN CONEXIÓN";
     statusEl.classList.add("offline");
     document.getElementById("stationStatus").textContent = "Sin datos del servidor";
+    document.getElementById("wifiStatus").textContent = "Sin datos";
+    document.getElementById("wifiStatus").classList.add("offline");
   }
 }
 
