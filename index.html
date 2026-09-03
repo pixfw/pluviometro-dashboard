@@ -40,7 +40,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
 <header>
   <div class="title">
     <div class="logo">🌧️</div>
-    <div><h1>PLUVIÓMETRO ESTACION ALANGASI</h1><p>Estación experimental · Quito, San Gabriel 170804 Ecuador</p></div>
+    <div><h1>PLUVIÓMETRO ESTACION ALANGASI <a href="https://www.google.com/maps/search/?api=1&query=-0.293014,-78.459387" target="_blank" rel="noopener" style="font-size:16px;text-decoration:none;">📍</a></h1><p>Estación experimental · Quito, Alangasí 170804 - Ecuador</p></div>
   </div>
   <div class="status" id="status">● Cargando…</div>
 </header>
@@ -78,17 +78,17 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
     <h2>Estado de la estación</h2>
     <div class="info-row"><span>Estado</span><strong id="stationStatus">Funcionando</strong></div>
     <div class="info-row"><span>Próxima actualización</span><strong id="updated">en 15s</strong></div>
-    <div class="info-row"><span>Resolución</span><strong>0,79 mm/tipping bucket</strong></div>
+    <div class="info-row"><span>Resolución</span><strong>0,25 mm/vuelco</strong></div>
   </div>
   <div class="card">
     <h2>Datos del dispositivo</h2>
-    <div class="info-row"><span>Controlador</span><strong>Wemos D1 (ESP8266)</strong></div>
+    <div class="info-row"><span>Controlador</span><strong>Wemos D1 mini (ESP8266)</strong></div>
     <div class="info-row"><span>Wi-Fi</span><strong id="wifiStatus">Conectado</strong></div>
     <div class="info-row"><span>Servidor</span><strong>Cloudflare Worker + D1</strong></div>
   </div>
 </div>
 
-<footer>Pluviómetro DIY · Datos demostrativos · Preparado para conectar con ESP32 / Cloudflare D1</footer>
+<footer>Estación en producción · Lecturas en tiempo real · Heartbeat cada 10 min · Almacenamiento Cloudflare</footer>
 </div>
 
 <script>
