@@ -77,8 +77,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
   <div class="card">
     <h2>Estado de la estación</h2>
     <div class="info-row"><span>Estado</span><strong id="stationStatus">Funcionando</strong></div>
-    <div class="info-row"><span>Última actualización</span><strong id="updated">hace 12 s</strong></div>
-    <div class="info-row"><span>Resolución</span><strong>0,79 mm/vuelco</strong></div>
+    <div class="info-row"><span>Próxima actualización</span><strong id="updated">en 15s</strong></div>
+    <div class="info-row"><span>Resolución</span><strong>0,25 mm/vuelco</strong></div>
   </div>
   <div class="card">
     <h2>Datos del dispositivo</h2>
@@ -134,13 +134,6 @@ function formatoHora(iso){
   return new Date(iso).toLocaleTimeString("es-EC",{hour12:false});
 }
 
-function segundosDesde(iso){
-  const seg = Math.floor((Date.now() - new Date(iso).getTime())/1000);
-  if (seg < 60) return `hace ${seg} s`;
-  if (seg < 3600) return `hace ${Math.floor(seg/60)} min`;
-  return `hace ${Math.floor(seg/3600)} h`;
-}
-
 async function cargarDatos(){
   try{
     const r = await fetch(`${API_BASE}/api/dashboard`, { cache: "no-store" });
@@ -158,7 +151,7 @@ async function cargarDatos(){
     document.querySelectorAll(".summary .card")[2].querySelector(".value").textContent = d.week.toFixed(2)+" mm";
     document.querySelectorAll(".summary .card")[3].querySelector(".value").textContent = d.month.toFixed(2)+" mm";
 
-    document.getElementById("updated").textContent = segundosDesde(d.updatedAt);
+    segundosParaProximaActualizacion = INTERVALO_ACTUALIZACION_MS / 1000;
 
     const statusEl = document.getElementById("status");
     // Usamos el heartbeat (señal periódica "sigo vivo"), no lastTip,
@@ -175,7 +168,7 @@ async function cargarDatos(){
     } else {
       statusEl.textContent = "● SIN CONEXIÓN";
       statusEl.classList.add("offline");
-      document.getElementById("stationStatus").textContent = "Sin heartbeat reciente";
+      document.getElementById("stationStatus").textContent = "Sin eventos recientes";
       document.getElementById("wifiStatus").textContent = "Sin datos";
       document.getElementById("wifiStatus").classList.add("offline");
     }
@@ -196,8 +189,15 @@ async function cargarDatos(){
   }
 }
 
+let segundosParaProximaActualizacion = INTERVALO_ACTUALIZACION_MS / 1000;
+
 cargarDatos();
 setInterval(cargarDatos, INTERVALO_ACTUALIZACION_MS);
+
+setInterval(()=>{
+  segundosParaProximaActualizacion = Math.max(0, segundosParaProximaActualizacion - 1);
+  document.getElementById("updated").textContent = `en ${segundosParaProximaActualizacion}s`;
+}, 1000);
 </script>
 </body>
 </html>
