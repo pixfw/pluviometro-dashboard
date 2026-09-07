@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pluviómetro Quito</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3"></script>
 <script src="config.js"></script>
 <style>
 :root{
@@ -83,6 +84,12 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
 <section class="section">
   <div class="card chart-card">
     <h2>Intensidad de lluvia</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:11px;color:var(--muted)">
+      <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#93c5fd;margin-right:4px"></span>Débil (0.5–2)</span>
+      <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#facc15;margin-right:4px"></span>Moderada (2–15)</span>
+      <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#fb923c;margin-right:4px"></span>Fuerte (15–30)</span>
+      <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#dc2626;margin-right:4px"></span>Muy fuerte (&gt;30 mm/h)</span>
+    </div>
     <div class="chart-wrap"><canvas id="intensity"></canvas></div>
   </div>
 </section>
@@ -116,6 +123,33 @@ const common={
   scales:{x:{grid:{display:false}},y:{beginAtZero:true}}
 };
 
+// Clasificación de intensidad de lluvia (referencia OMM), en mm/h
+function colorPorIntensidad(v){
+  if(v <= 0.5) return "#cbd5e1";   // llovizna / muy débil
+  if(v <= 2)   return "#93c5fd";   // débil
+  if(v <= 15)  return "#facc15";   // moderada
+  if(v <= 30)  return "#fb923c";   // fuerte
+  return "#dc2626";                // muy fuerte / torrencial
+}
+
+const intensityCommon={
+  ...common,
+  plugins:{
+    ...common.plugins,
+    annotation:{
+      annotations:{
+        bDebil:{type:"box",yMin:0.5,yMax:2,backgroundColor:"rgba(147,197,253,0.10)",borderWidth:0},
+        bModerada:{type:"box",yMin:2,yMax:15,backgroundColor:"rgba(250,204,21,0.10)",borderWidth:0},
+        bFuerte:{type:"box",yMin:15,yMax:30,backgroundColor:"rgba(251,146,60,0.12)",borderWidth:0},
+        bMuyFuerte:{type:"box",yMin:30,yMax:100,backgroundColor:"rgba(220,38,38,0.10)",borderWidth:0},
+        lDebil:{type:"label",xValue:0,yValue:2,content:"Débil",position:{x:"start",y:"end"},font:{size:10},color:"#3b82f6",xAdjust:2,yAdjust:-2},
+        lModerada:{type:"label",xValue:0,yValue:15,content:"Moderada",position:{x:"start",y:"end"},font:{size:10},color:"#ca8a04",xAdjust:2,yAdjust:-2},
+        lFuerte:{type:"label",xValue:0,yValue:30,content:"Fuerte",position:{x:"start",y:"end"},font:{size:10},color:"#ea580c",xAdjust:2,yAdjust:-2}
+      }
+    }
+  }
+};
+
 let chartRain24, chartIntensity;
 
 function crearGraficos(labels24, rainData, intensityLabels, intensityData){
@@ -128,8 +162,9 @@ function crearGraficos(labels24, rainData, intensityLabels, intensityData){
 
   chartIntensity = new Chart(document.getElementById("intensity"),{
    type:"bar",data:{labels:intensityLabels,datasets:[{
-     label:"mm/h",data:intensityData,borderRadius:5
-   }]},options:common
+     label:"mm/h",data:intensityData,borderRadius:5,
+     backgroundColor:intensityData.map(colorPorIntensidad)
+   }]},options:intensityCommon
   });
 }
 
@@ -140,6 +175,7 @@ function actualizarGraficos(labels24, rainData, intensityLabels, intensityData){
 
   chartIntensity.data.labels = intensityLabels;
   chartIntensity.data.datasets[0].data = intensityData;
+  chartIntensity.data.datasets[0].backgroundColor = intensityData.map(colorPorIntensidad);
   chartIntensity.update();
 }
 
